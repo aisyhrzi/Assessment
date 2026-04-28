@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Proposed Re-Architecture</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #ffffff;
+    background-image:
+      linear-gradient(rgba(180,200,220,.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(180,200,220,.18) 1px, transparent 1px);
+    background-size: 28px 28px;
+    padding: 32px 40px 48px;
+    min-width: 900px;
+  }
+
+  /* ── Page title ── */
+  .title {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #d4a017;
+    letter-spacing: .03em;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    display: inline-block;
+    background: #1a1a2e;
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    padding: 7px 20px;
+    border-radius: 5px;
+    margin-bottom: 30px;
+  }
+
+  /* ── Three-column layout ── */
+  .columns {
+    display: flex;
+    gap: 0;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  /* ── Big rounded section cards ── */
+  .section-card {
+    border: 2px solid #b0b8c8;
+    border-radius: 28px;
+    padding: 18px 16px 22px;
+    background: rgba(255,255,255,.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+  .section-card.src   { min-width: 200px; max-width: 200px; }
+  .section-card.stage { min-width: 320px; max-width: 320px; margin: 0 12px; }
+  .section-card.report{ min-width: 210px; max-width: 210px; }
+
+  .section-title {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-align: center;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+  }
+
+  /* refresh icon top-right */
+  .refresh-icon {
+    position: absolute;
+    top: 14px; right: 16px;
+    font-size: 1.4rem;
+    color: #2dc3e8;
+  }
+
+  /* ── Generic boxes ── */
+  .box {
+    width: 100%;
+    border: 2px solid #b0b8c8;
+    border-radius: 10px;
+    padding: 9px 12px;
+    background: white;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+  .box.yellow-bg { background: #fff8dc; border-color: #e0c040; }
+  .box.pink-bg   { background: #fff0f3; border-color: #e0a0b0; }
+  .box.blue-bg   { background: #eaf5ff; border-color: #70b8e8; border-width: 2.5px; border-style: dashed; }
+
+  /* INGESTION / VALIDATION blocks with header */
+  .layer-block {
+    width: 100%;
+    border: 2px solid #b0b8c8;
+    border-radius: 12px;
+    padding: 10px 12px 12px;
+    background: white;
+  }
+  .layer-title {
+    font-size: 0.70rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+  }
+  .layer-note {
+    font-size: 0.63rem;
+    color: #444;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+  .layer-note li { margin-left: 14px; }
+
+  /* Message Queue pill */
+  .mq-pill {
+    background: #fff3cd;
+    border: 1.5px solid #e8c430;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #7a5800;
+    text-align: center;
+  }
+
+  /* FAILED / PASSED buttons */
+  .verdict-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .verdict {
+    flex: 1;
+    border-radius: 6px;
+    padding: 5px 4px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: white;
+  }
+  .verdict.fail { background: #e03030; }
+  .verdict.pass { background: #2aad50; }
+
+  /* outcome boxes */
+  .outcome-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  .outcome {
+    flex: 1;
+    border: 1.5px solid #b0b8c8;
+    border-radius: 8px;
+    padding: 7px 6px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-align: center;
+    background: white;
+    color: #1a1a2e;
+    line-height: 1.5;
+  }
+  .outcome.fail-out { border-color: #e08090; background: #fff5f7; }
+  .outcome.pass-out { border-color: #80d090; background: #f5fff8; }
+
+  /* ── Arrows ── */
+  .arrow-down {
+    font-size: 1.1rem;
+    color: #555;
+    text-align: center;
+    line-height: 1;
+    width: 100%;
+  }
+  .arrow-right {
+    font-size: 1.4rem;
+    color: #555;
+    align-self: center;
+    padding: 0 2px;
+    flex-shrink: 0;
+  }
+
+  /* ── Data source items ── */
+  .src-item {
+    width: 100%;
+    border: 1.5px solid #b0b8c8;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-align: center;
+    background: white;
+    color: #1a1a2e;
+  }
+
+  /* ── Transform note inside staging ── */
+  .transform-note {
+    width: 100%;
+    background: #f0f4ff;
+    border: 1.5px dashed #90a8e0;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 0.63rem;
+    color: #2a3560;
+    line-height: 1.6;
+  }
+  .transform-note li { margin-left: 14px; }
+
+  /* Power BI dashed box */
+  .powerbi-box {
+    width: 100%;
+    background: #fffde8;
+    border: 2.5px dashed #d4a017;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #7a5800;
+  }
+  .powerbi-box .pbi-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+  }
+  .pbi-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #2dc3e8;
+    flex-shrink: 0;
+  }
+
+  /* ── src pink note ── */
+  .pink-note {
+    width: 100%;
+    background: #fff0f0;
+    border: 1.5px solid #f0b0b8;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.63rem;
+    color: #700;
+    line-height: 1.7;
+  }
+  .pink-note li { margin-left: 14px; }
+  .pink-note .hl { font-weight: 700; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="title">PROPOSED RE-ARCHITECTURE</div>
+<div class="subtitle">End-to-End Automated Ingestion &amp; Monitoring Pipeline</div>
+
+<div class="columns">
+
+  <!-- ═══════════════ DATA SOURCE ═══════════════ -->
+  <div class="section-card src">
+    <div class="section-title">Data Source</div>
+
+    <div class="src-item">SENSOR DEVICE</div>
+    <div class="src-item">REST API</div>
+
+    <div class="pink-note">
+      <ul>
+        <li class="hl">MIXED TIMEZONES</li>
+        <li class="hl">MULTIPLE DATA FORMAT</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- right arrow to staging -->
+  <div class="arrow-right">→</div>
+
+  <!-- ═══════════════ STAGING & PIPELINE ═══════════════ -->
+  <div class="section-card stage">
+    <div class="section-title">Staging and<br>Pipeline Area</div>
+
+    <!-- 1. Ingestion -->
+    <div class="layer-block">
+      <div class="layer-title">Ingestion Layer</div>
+      <div class="layer-note">
+        <ul><li>Buffers all incoming sensor events</li></ul>
+      </div>
+      <div class="mq-pill">Message Queue</div>
+    </div>
+
+    <div class="arrow-down">↓</div>
+
+    <!-- 2. Validation -->
+    <div class="layer-block">
+      <div class="layer-title">Validation Engine</div>
+      <div class="layer-note">
+        <ul>
+          <li>Duplicate (SensorId, Created)</li>
+          <li>Volume spike</li>
+          <li>Future timestamp check</li>
+        </ul>
+      </div>
+
+      <!-- FAILED / PASSED row -->
+      <div class="verdict-row">
+        <div class="verdict fail">FAILED</div>
+        <div class="verdict pass">PASSED</div>
+      </div>
+
+      <!-- outcomes -->
+      <div class="outcome-row" style="margin-top:8px;">
+        <div class="outcome fail-out">LOG AND<br>ALERT TEAMS<br>VIA MSTEAM</div>
+        <div class="outcome pass-out">SAVE TO<br>DATABASE</div>
+      </div>
+    </div>
+
+    <div class="arrow-down">↓</div>
+
+    <!-- transform note -->
+    <div class="transform-note">
+      <ul>
+        <li>Data ingestion and Transformation</li>
+        <li>Business Rules Implementation</li>
+      </ul>
+    </div>
+
+    <div class="arrow-down">↓</div>
+
+    <!-- Data Warehouse -->
+    <div class="layer-block" style="text-align:center;">
+      <div class="layer-title" style="text-align:center;">DATA WAREHOUSE</div>
+      <div style="font-size:0.65rem; color:#555;">Monthly aggregates</div>
+    </div>
+  </div>
+
+  <!-- right arrow to report -->
+  <div class="arrow-right">→</div>
+
+  <!-- ═══════════════ DEVELOPER AND USER ═══════════════ -->
+  <div class="section-card report">
+    <div class="refresh-icon">↻</div>
+    <div class="section-title">Developer and<br>User</div>
+
+    <div class="powerbi-box">
+      <div class="pbi-header">
+        <div class="pbi-dot"></div>
+        <div class="pbi-dot"></div>
+        POWERBI Desktop
+      </div>
+      <ul style="font-size:0.63rem; font-weight:400; color:#444; line-height:1.7; margin-left:14px;">
+        <li>Monthly avg per sensor</li>
+        <li>Data quality scoring</li>
+        <li>Quarantine drill-down</li>
+        <li>Silence / spike trend</li>
+      </ul>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
