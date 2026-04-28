@@ -16,18 +16,18 @@ The project includes:
 ## 📂 Files Description
 
 * **ERD_3NF.html**
-Entity Relationship Diagram in Third Normal Form (3NF)
-👉 https://aisyhrzi.github.io/Assessment/ERD_3NF.html
+  Entity Relationship Diagram in Third Normal Form (3NF)
+  👉 https://aisyhrzi.github.io/Assessment/ERD_3NF.html
 
 * **Kimball_style_model**
-Dimensional model based on Kimball methodology
-👉 https://aisyhrzi.github.io/Assessment/Kimball_style_model.html
+  Dimensional model based on Kimball methodology
+  👉 https://aisyhrzi.github.io/Assessment/Kimball_style_model.html
 * **measurements_mysql**
   SQL scripts for database creation and data insertion
 
 * **pipeline_proposed_improvement**
-  Proposed improvements for data pipeline
-👉 https://aisyhrzi.github.io/Assessment/pipeline_proposed_improvement.html
+    Proposed improvements for data pipeline
+  👉 https://aisyhrzi.github.io/Assessment/pipeline_proposed_improvement.html
 * **reference**
   Supporting documents and notes
 
